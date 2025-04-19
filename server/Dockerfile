@@ -1,40 +1,33 @@
-# -------- Base Stage --------
-ARG NODE_VERSION=22.14.0
-FROM node:${NODE_VERSION}-alpine as base
-
+# ---------- Base Stage ----------
+FROM node:20-alpine AS base
 WORKDIR /app
+COPY package.json package-lock.json ./
 
-COPY package*.json ./
-
+# ---------- Dependencies Stage ----------
+# Install ALL dependencies (only for build & dev stages)
+FROM base AS deps
 RUN npm install
 
-# -------- Development Stage --------
-FROM base AS development
 
+# ---------- Development Stage ----------
+FROM deps AS development
 ENV NODE_ENV=development
-
-WORKDIR /app
-
 COPY . .
+CMD ["npm", "run", "dev"]
 
-RUN npm install --only=development
 
-EXPOSE 3000
-
-CMD ["npx", "run", "dev"]
-
-# -------- Production Stage --------
-FROM base AS production
-
-ENV NODE_ENV=production
-
-WORKDIR /app
-
+# ---------- Build Stage ----------
+FROM deps AS build
 COPY . .
-
-RUN npm install --omit=dev
+# Generate production build (TypeScript to JavaScript)
 RUN npm run build
 
-EXPOSE 3000
 
-CMD ["node", "run", "start"]    
+# ---------- Production Stage ----------
+FROM base AS production
+ENV NODE_ENV=production
+RUN npm ci --omit=dev
+# Copy built JS files from build stage
+COPY --from=build /app/build ./build
+# Start the app
+CMD ["npm", "run", "start"]
