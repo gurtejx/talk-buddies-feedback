@@ -4,6 +4,15 @@ import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
+  return (
+    <div className="text-4xl text-red-600 font-bold">
+      Tailwind is working 
+    </div>
+  )
+}
+
+/*
+ function App() {
   const [count, setCount] = useState(0)
 
   return (
@@ -31,5 +40,6 @@ function App() {
     </>
   )
 }
+*/
 
 export default App
