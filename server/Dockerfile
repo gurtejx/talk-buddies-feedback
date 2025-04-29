@@ -1,5 +1,5 @@
 # ---------- Base Stage ----------
-FROM node:20-alpine AS base
+FROM node:20 AS base
 WORKDIR /app
 COPY package.json package-lock.json ./
 
@@ -13,6 +13,7 @@ RUN npm install
 FROM deps AS development
 ENV NODE_ENV=development
 COPY . .
+EXPOSE 3000
 CMD ["npm", "run", "dev"]
 
 
@@ -30,4 +31,5 @@ RUN npm ci --omit=dev
 # Copy built JS files from build stage
 COPY --from=build /app/build ./build
 # Start the app
+EXPOSE 3000
 CMD ["npm", "run", "start"]
