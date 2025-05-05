@@ -1,0 +1,61 @@
+version: '3.9'
+
+services:
+  tb-server:
+    build:
+      context: ./server
+      target: development
+    ports:
+      - '3000:${SERVER_PORT}'
+    volumes:
+      - ./server:/app
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - database
+    networks:
+      - app-network
+    env_file:
+      - .env
+
+  database:
+    image: postgres:17
+    container_name: postgres-db
+    restart: always
+    ports:
+      - '15432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=test_db
+    volumes:
+      - db-data:/var/lib/postgresql/data/
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    ports:
+      - '15433:80'
+    depends_on:
+      - database
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin/
+    networks:
+      - app-network
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=gurtejmalik@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+
+volumes:
+  db-data:
+  pgadmin-data:
+
+
+networks:
+  app-network:
+    driver: bridge
+      

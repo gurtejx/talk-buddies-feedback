@@ -3,7 +3,7 @@
 FROM node:20 AS base
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm install
+RUN rm -rf node_modules package-lock.json && npm install 
 
 # ---------- Development Stage ----------
 # This stage installs all dependencies and sets up the environment for development.
